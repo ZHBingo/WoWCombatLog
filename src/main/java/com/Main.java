@@ -44,7 +44,7 @@ public class Main {
             }
             reader.close();
 
-            // 计算出勤
+            // 计算本次出勤
             for (String key : resultMap.keySet()) {
                 Integer c = resultMap.get(key).remove("MARK");
                 if (c != null && c > 20) { // wcl有20次以上（不含）成功施法，算作出勤一次
@@ -56,15 +56,13 @@ public class Main {
         }
 
         // 删除出勤为0的人员
-        List<String> removeKey = new ArrayList<>();
-        for (String key : resultMap.keySet()) {
-            Integer c = resultMap.get(key).get("出勤");
-            if (c == null || c == 0) { // wcl有20次以上（不含）成功施法，算作出勤一次
-                removeKey.add(key);
+        Iterator<Map.Entry<String, Map<String, Integer>>> it = resultMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Map<String, Integer>> entry = it.next();
+            Integer c = entry.getValue().get("出勤");
+            if (c == null || c == 0) {
+                it.remove();
             }
-        }
-        for (String key : removeKey) {
-            resultMap.remove(key);
         }
 
         // 计算价格
@@ -81,9 +79,10 @@ public class Main {
             resultMap.get(key).put("总计", subTotal);
         }
 
+        // 按消耗药水价格降序排列
         resultMap = sortByPrice(resultMap);
 
-        // output
+        // 输出CSV到控制台
         System.out.println("CSV OUTPUT----------------");
         List<String> temp = new ArrayList<>();
         temp.add("角色");
