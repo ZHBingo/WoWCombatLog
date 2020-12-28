@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        File[] files = new File("D:\\Workspaces\\MyWorkspace\\WoWCombatLog\\battles").listFiles();
+        File[] files = new File("src/main/resources/battles/").listFiles();
         if (files == null) {
             System.err.println("cannot list files");
             return;

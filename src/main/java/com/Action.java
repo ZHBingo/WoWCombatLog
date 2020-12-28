@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Action {
     private String player;
-    private String target;
     private String spellID;
     private String spellName;
 
@@ -14,7 +13,6 @@ public class Action {
         String[] als = al.split(",");
         if ("SPELL_CAST_SUCCESS".equals(als[0])) {
             this.player = StringUtils.remove(StringUtils.remove(als[2], "\""), "-怒炉");
-            this.target =
             this.spellID = als[9];
             this.spellName = StringUtils.remove(als[10], "\"");
         }
