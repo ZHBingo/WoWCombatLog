@@ -4,11 +4,13 @@ public class BuffAndCast {
     private String id;
     private String name;
     private int price;
+    private String log_type;
 
-    public BuffAndCast(String id, String name, int price) {
+    public BuffAndCast(String id, String name, int price, String log_type) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.log_type = log_type;
     }
 
     public String getId() {
@@ -33,6 +35,14 @@ public class BuffAndCast {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public String getLogType() {
+        return log_type;
+    }
+
+    public void setLogType(String log_type) {
+        this.log_type = log_type;
     }
 
     public String getPriceName() {
