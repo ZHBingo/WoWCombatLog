@@ -1,5 +1,5 @@
-##WowCombatLog##
-***
+WowCombatLog
+------
 分析WCL生成的文本日志文件，输出每位成员的嗑药情况
 
 * 检查逻辑
