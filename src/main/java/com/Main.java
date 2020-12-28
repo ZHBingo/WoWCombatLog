@@ -1,10 +1,18 @@
 package com;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,19 +24,21 @@ public class Main {
             return;
         }
 
+        JSONParser parser = new JSONParser();
         List<BuffAndCast> buffsAndCasts = new ArrayList<>();
-        buffsAndCasts.add(new BuffAndCast("11334", "强效敏捷", 2));
-        buffsAndCasts.add(new BuffAndCast("11405", "巨人药剂", 3));
-        buffsAndCasts.add(new BuffAndCast("17038", "冬泉火酒", 14));
-        buffsAndCasts.add(new BuffAndCast("17538", "猫鼬药剂", 25));
-        buffsAndCasts.add(new BuffAndCast("17539", "强效奥法药剂", 23));
-        buffsAndCasts.add(new BuffAndCast("17531", "恢复法力", 9));
-        buffsAndCasts.add(new BuffAndCast("26276", "强效火力", 17));
-        buffsAndCasts.add(new BuffAndCast("17544", "防护冰霜", 15));
-        buffsAndCasts.add(new BuffAndCast("17548", "防护暗影", 36));
-        buffsAndCasts.add(new BuffAndCast("11474", "暗影强化", 14));
-        buffsAndCasts.add(new BuffAndCast("27869", "黑暗符文", 48));
-
+        try (FileReader reader = new FileReader("src/main/resources/checklist/checklist.json"))
+        {
+            Object obj = parser.parse(reader);
+            JSONObject checklist = (JSONObject) obj;
+            JSONArray buffs = (JSONArray) checklist.get("buff");
+            buffs.forEach(buff -> addBuffAndCast(buffsAndCasts, (JSONObject) buff));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         Map<String, Map<String, Integer>> resultMap = new LinkedHashMap<>();
 
@@ -37,10 +47,7 @@ public class Main {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String log;
             while ((log = reader.readLine()) != null) {
-                String logType = getLogType(log);
-                if (logType.equals("SPELL_CAST_SUCCESS")) {
-                    fetchLog(resultMap, buffsAndCasts, log);
-                }
+                fetchLog(resultMap, buffsAndCasts, log);
             }
             reader.close();
 
@@ -116,7 +123,11 @@ public class Main {
 
     public static void fetchLog(Map<String, Map<String, Integer>> resultMap, List<BuffAndCast> buffsAndCasts, String log) {
         Action action = new Action(log);
+        String logType = getLogType(log);
         for (BuffAndCast buffAndCast : buffsAndCasts) {
+            if (!logType.equals(buffAndCast.getLogType())) {
+                continue;
+            }
             Map<String, Integer> map = resultMap.computeIfAbsent(action.getPlayer(), k -> new HashMap<>());
             int count = map.computeIfAbsent("MARK", k -> 0);
             map.put("MARK", count + 1);
@@ -144,5 +155,13 @@ public class Main {
         } else {
             return "-1";
         }
+    }
+
+    private static void addBuffAndCast(List<BuffAndCast> bufflist, JSONObject buff) {
+        bufflist.add(new BuffAndCast((String) buff.get("id"),
+                                     (String) buff.get("name"),
+                                     ((Long) buff.get("price")).intValue(), 
+                                     (String) buff.get("log_type")));
+
     }
 }
